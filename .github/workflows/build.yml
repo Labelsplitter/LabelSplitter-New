@@ -37,7 +37,11 @@ jobs:
 
       - name: ⚙️ Build executable
         run: |
-          pyinstaller --onefile --windowed --name LabelSplitter label_splitter_ctk.py
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            pyinstaller --onefile --windowed --name LabelSplitter label_splitter_ctk.py
+          else
+            # macOS: create a proper .app bundle
+            pyinstaller --windowed --name LabelSplitter label_splitter_ctk.py
 
       - name: 📁 Prepare artifact folder
         run: |
@@ -45,8 +49,8 @@ jobs:
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             mv dist/LabelSplitter.exe build_output/
           else
-            # On macOS, PyInstaller produces a single executable, not a .app folder, for --onefile
-            mv dist/LabelSplitter build_output/LabelSplitter.app
+            # macOS PyInstaller .app bundle is in dist/LabelSplitter.app
+            mv dist/LabelSplitter.app build_output/
           fi
 
       - name: 🗜️ Zip artifact
