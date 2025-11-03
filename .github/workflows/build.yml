@@ -9,7 +9,6 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
@@ -19,6 +18,8 @@ jobs:
           - os: macos-latest
             label: Mac
             ext: app
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: 🧩 Checkout repository
@@ -36,14 +37,19 @@ jobs:
 
       - name: ⚙️ Build executable
         run: |
-          pyinstaller --onefile --windowed --name "LabelSplitter" label_splitter_ctk.py
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            pyinstaller --onefile --windowed --name LabelSplitter label_splitter_ctk.py
+          else
+            # macOS: create a proper .app bundle
+            pyinstaller --windowed --name LabelSplitter label_splitter_ctk.py
 
       - name: 📁 Prepare artifact folder
         run: |
-          mkdir build_output
+          mkdir -p build_output
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            move dist\LabelSplitter.exe build_output\
+            mv dist/LabelSplitter.exe build_output/
           else
+            # macOS PyInstaller .app bundle is in dist/LabelSplitter.app
             mv dist/LabelSplitter.app build_output/
           fi
 
@@ -51,7 +57,7 @@ jobs:
         run: |
           cd build_output
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
-            powershell Compress-Archive -Path * -DestinationPath ../LabelSplitter_Windows.zip
+            zip -r ../LabelSplitter_Windows.zip *
           else
             zip -r ../LabelSplitter_Mac.zip *
           fi
@@ -61,4 +67,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: LabelSplitter_${{ matrix.label }}
-          path: LabelSplitter_${{ matrix.label }}.zip
+          path: |
+            LabelSplitter_Windows.zip
+            LabelSplitter_Mac.zip
