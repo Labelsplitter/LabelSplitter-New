@@ -1,2 +1,13 @@
-Flask
-PyMuPDF
+altgraph==0.17.4
+customtkinter==5.2.2
+darkdetect==0.8.0
+packaging==25.0
+pefile==2023.2.7
+pyasn1==0.6.1
+pyinstaller==6.16.0
+pyinstaller-hooks-contrib==2025.9
+PyMuPDF==1.26.5
+PySimpleGUI==5.0.10
+pywin32-ctypes==0.2.3
+rsa==4.9.1
+setuptools==80.9.0
